@@ -34,7 +34,7 @@ defmodule Mazex.CellTest do
     test "with BIDI == false" do
       src1 = Cell.new(1, 1)
       tgt1 = Cell.new(1, 2)
-      {src2, tgt2} = Cell.link(src1, tgt1, false)
+      [src2, tgt2] = Cell.link(src1, tgt1, false) |> Map.values()
       assert src2.row == 1
       assert src2.col == 1
       assert src2.links == %{ {1, 2} => true }
@@ -44,7 +44,7 @@ defmodule Mazex.CellTest do
     test "with BIDI == true" do
       src1 = Cell.new(1, 1)
       tgt1 = Cell.new(1, 2)
-      {src2, tgt2} = Cell.link(src1, tgt1, true)
+      [src2, tgt2] = Cell.link(src1, tgt1, true) |> Map.values()
       assert src2.row == 1
       assert src2.col == 1
       assert src2.links == %{ {1, 2} => true }
@@ -57,8 +57,8 @@ defmodule Mazex.CellTest do
       src1 = Cell.new(1, 1)
       tgt1 = Cell.new(1, 2)
       tgt2 = Cell.new(2, 1)
-      {src2, _} = Cell.link(src1, tgt1, true)
-      {src3, _} = Cell.link(src2, tgt2, true)
+      [src2, _] = Cell.link(src1, tgt1, true) |> Map.values()
+      [src3, _] = Cell.link(src2, tgt2, true) |> Map.values()
       assert src3.links == %{ {1, 2} => true, {2, 1} => true}
     end
   end
@@ -78,11 +78,11 @@ defmodule Mazex.CellTest do
     test "with BIDI == false" do
       src1 = Cell.new(1, 1)
       tgt1 = Cell.new(1, 2)
-      {src2, tgt2} = Cell.link(src1, tgt1, true)
+      [src2, tgt2] = Cell.link(src1, tgt1, true) |> Map.values()
       assert src2.links == %{ {1, 2} => true }
       assert tgt2.links == %{ {1, 1} => true }
 
-      {src3, tgt3} = Cell.unlink(src2, tgt2, false)
+      [src3, tgt3] = Cell.unlink(src2, tgt2, false) |> Map.values()
       assert src3.links == %{}
       assert tgt3.links == %{ {1, 1} => true }
     end
@@ -90,9 +90,9 @@ defmodule Mazex.CellTest do
     test "with BIDI == true" do
       src1 = Cell.new(1, 1)
       tgt1 = Cell.new(1, 2)
-      {src2, tgt2} = Cell.link(src1, tgt1, true)
+      [src2, tgt2] = Cell.link(src1, tgt1, true) |> Map.values()
 
-      {src3, tgt3} = Cell.unlink(src2, tgt2, true)
+      [src3, tgt3] = Cell.unlink(src2, tgt2, true) |> Map.values()
       assert src3.links == %{}
       assert tgt3.links == %{}
     end
@@ -125,7 +125,7 @@ defmodule Mazex.CellTest do
 
     test "#neighbors/1" do
       ids = Cell.new(5,5) |> Cell.neighbors()
-      assert ids == [ {4,5}, {6,5}, {5,6}, {5,4} ]
+      assert ids == %{ north: {4,5}, south: {6,5}, east: {5,6}, west: {5,4} }
     end
   end
 end

@@ -17,6 +17,10 @@ defmodule Mazex.Cell do
   @doc """
   Return the cell ID - a tuple of it's row and column.
   """
+  def id({row, col}) do
+    {row, col}
+  end
+
   def id(cell) do
     {cell.row, cell.col}
   end
@@ -33,11 +37,11 @@ defmodule Mazex.Cell do
   Bidirectional link from src cell to target cell.
   """
   def link(src, tgt, false) do
-    {link(src, tgt), tgt}
+    %{id(src) => link(src, tgt), id(tgt) => tgt}
   end
 
   def link(src, tgt, true) do
-    {link(src, tgt), link(tgt, src)}
+    %{id(src) => link(src, tgt), id(tgt) => link(tgt, src)}
   end
 
   @doc """
@@ -52,11 +56,11 @@ defmodule Mazex.Cell do
   Bidirectional link from src cell to target cell.
   """
   def unlink(src, tgt, false) do
-    {unlink(src, tgt), tgt}
+    %{id(src) => unlink(src, tgt), id(tgt) => tgt}
   end
 
   def unlink(src, tgt, true) do
-    {unlink(src, tgt), unlink(tgt, src)}
+    %{id(src) => unlink(src, tgt), id(tgt) => unlink(tgt, src)}
   end
 
   @doc """
@@ -69,22 +73,41 @@ defmodule Mazex.Cell do
   @doc """
   Return true if cell2 is linked to cell1.
   """
-  def linked?(cell1, cell2) do
-    cell1 |> links() |> Enum.any?(id(cell2))
+  def linked?(_cell, nil) do
+    false
   end
 
+  def linked?(cell1, cell2) do
+    cell1.links
+    |> Map.keys()
+    |> Enum.any?(&(id(cell2) == &1))
+  end
+
+  def north({row, col}), do: {row - 1, col}
   def north(cell), do: {cell.row - 1, cell.col}
+
+  def south({row, col}), do: {row + 1, col}
   def south(cell), do: {cell.row + 1, cell.col}
-  def west(cell),  do: {cell.row, cell.col - 1}
-  def east(cell),  do: {cell.row, cell.col + 1}
+
+  def  west({row, col}), do: {row, col - 1}
+  def  west(cell), do: {cell.row, cell.col - 1}
+
+  def  east({row, col}), do: {row, col + 1}
+  def  east(cell), do: {cell.row, cell.col + 1}
+
+  def neighbors(cell_id) when is_tuple(cell_id) do
+    %{
+      north: north(cell_id),
+      south: south(cell_id),
+      east:   east(cell_id),
+      west:   west(cell_id)
+    }
+  end
 
   def neighbors(cell) do
-    [
-      north(cell),
-      south(cell),
-      east(cell),
-      west(cell)
-    ]
+    cell
+    |> id()
+    |> neighbors()
   end
 
 end
